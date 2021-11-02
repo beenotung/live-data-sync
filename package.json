@@ -8,6 +8,14 @@
     "email": "aabbcc1241@yahoo.com.hk",
     "url": "https://beeno-tung.surge.sh"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/beenotung/live-data-sync.git"
+  },
+  "bugs": {
+    "url": "https://github.com/beenotung/live-data-sync/issues"
+  },
+  "homepage": "https://github.com/beenotung/live-data-sync#readme",
   "license": "BSD-2-Clause",
   "main": "dist/cjs/index.js",
   "types": "dist/cjs/index.d.ts",
