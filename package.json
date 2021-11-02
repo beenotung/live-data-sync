@@ -1,6 +1,6 @@
 {
-  "name": "live-sync-data",
-  "version": "1.0.0",
+  "name": "live-data-sync",
+  "version": "0.0.0",
   "description": "TODO: add desc",
   "keywords": [],
   "author": {
@@ -43,10 +43,15 @@
   ],
   "dependencies": {
     "@beenotung/tslib": "^17.8.0",
+    "better-sqlite3": "^7.4.3",
+    "better-sqlite3-helper": "^3.1.4",
+    "better-sqlite3-schema": "^2.1.0",
     "tslib": "^2.3.1"
   },
   "devDependencies": {
+    "@types/better-sqlite3": "^7.4.0",
     "@types/chai": "^4.2.22",
+    "@types/integer": "^4.0.1",
     "@types/mocha": "^9.0.0",
     "@types/node": "*",
     "@types/sinon": "^10.0.6",
