@@ -12,7 +12,12 @@ toSafeMode(db)
 
 let store = new Store(db)
 
-let user_id = store.add('users', { username: 'alice', age: 18 })
+let user_id = store.add('users', {
+  username: 'alice',
+  age: 18,
+  createdAt: new Date(),
+  tags: ['test', 'object', { nested: true }],
+})
 console.log({ user_id })
 
 store.update(user_id, { age: 21, gender: 'female' })
@@ -21,3 +26,7 @@ store.update(user_id, { age: 22, gender: 'trans' })
 // store.delete(user_id)
 
 store.compact()
+
+let all = store.loadAll()
+
+console.dir({ all }, { depth: 20 })
