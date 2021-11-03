@@ -100,9 +100,8 @@ where id in (
 
   /** @description partial update */
   update(id: Int, object: object) {
-    for (const field in object) {
+    Object.entries(object).forEach(([field, value]) => {
       const field_id = this.fieldKey.getId(field)
-      let value = (object as any)[field]
       let is_json = 0
       if (value && typeof value === 'object') {
         is_json = 1
@@ -114,7 +113,7 @@ where id in (
         value,
         is_json,
       })
-    }
+    })
   }
 
   delete(id: Int) {

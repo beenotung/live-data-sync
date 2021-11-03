@@ -7,6 +7,7 @@ export class KeyCache {
   private cache = new Map<string, Int>()
   private select_statement: Statement
   private insert_statement: Statement
+
   constructor(db: DBInstance, table: string) {
     this.select_statement = db.prepare(`select id from ${table} where name = ?`)
     this.insert_statement = db.prepare(`insert into ${table} (name) values (?)`)
@@ -14,6 +15,7 @@ export class KeyCache {
 
   getId(key: string): Int {
     if (this.cache.has(key)) {
+      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
       return this.cache.get(key)!
     }
     const row = this.select_statement.get(key)

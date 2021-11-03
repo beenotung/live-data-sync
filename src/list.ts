@@ -14,7 +14,8 @@ export function add<T>(list: List<T>, item: T): List<T> {
 }
 
 export function remove<T>(list: List<T>, id: number): List<T> {
-  const { [id]: item, ...dict } = list.dict
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { [id]: _item, ...dict } = list.dict
   return {
     dict,
     next_id: list.next_id,
