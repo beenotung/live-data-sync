@@ -3,29 +3,35 @@ import { DBInstance } from 'better-sqlite3-schema'
 
 export type Int = number | bigint
 
+type Row = {
+  id: number
+  name: string
+}
 export class KeyCache {
   private cache = new Map<string, Int>()
-  private select_statement: Statement
+
+  /** @description for getId() */
   private insert_statement: Statement
 
   constructor(db: DBInstance, table: string) {
-    this.select_statement = db.prepare(`select id from ${table} where name = ?`)
     this.insert_statement = db.prepare(`insert into ${table} (name) values (?)`)
+
+    const rows: Row[] = db.prepare(`select id, name from ${table}`).all()
+    rows.forEach(row => {
+      this.cache.set(row.name, row.id)
+    })
   }
 
   getId(key: string): Int {
-    if (this.cache.has(key)) {
-      // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-      return this.cache.get(key)!
-    }
-    const row = this.select_statement.get(key)
-    if (row) {
-      const id = row.id
+    let id = this.cache.get(key)
+    if (!id) {
+      id = this.insert_statement.run(key).lastInsertRowid
       this.cache.set(key, id)
-      return id
     }
-    const id = this.insert_statement.run(key).lastInsertRowid
-    this.cache.set(key, id)
     return id
+  }
+
+  entries() {
+    return this.cache.entries()
   }
 }
