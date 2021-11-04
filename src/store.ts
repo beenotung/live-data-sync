@@ -1,6 +1,7 @@
 import { Statement } from 'better-sqlite3'
 import { migrateUp, DBInstance } from 'better-sqlite3-schema'
-import { KeyCache, Int } from './key-cache'
+import { KeyCache } from './key-cache'
+import { Int } from './types'
 
 export class Store {
   private collectionKey: KeyCache
