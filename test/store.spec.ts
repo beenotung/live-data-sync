@@ -1,4 +1,3 @@
-import { db } from './db'
 import { Store } from '../src/store'
 import { expect } from 'chai'
 import { Int } from '../src/types'
@@ -12,7 +11,7 @@ describe('Store TestSuit', () => {
   let db: DBInstance
   let store: Store
   before(() => {
-    dbFile = join('data', 'sqlite3.db')
+    dbFile = join('data', 'test.db')
     if (existsSync(dbFile)) {
       unlinkSync(dbFile)
     }
