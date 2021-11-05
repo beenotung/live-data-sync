@@ -1,7 +1,7 @@
 import { Statement } from 'better-sqlite3'
 import { migrateUp, DBInstance } from 'better-sqlite3-schema'
 import { KeyCache } from './key-cache'
-import { Int } from './types'
+import { Int, ObjectDict } from './types'
 
 export class Store {
   private collectionKey: KeyCache
@@ -187,5 +187,3 @@ where id in (
     return collection_name_object_dict
   }
 }
-
-type ObjectDict = Record<number, object>

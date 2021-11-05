@@ -11,7 +11,7 @@ describe('Store TestSuit', () => {
   let db: DBInstance
   let store: Store
   before(() => {
-    dbFile = join('data', 'test.db')
+    dbFile = join('data', 'store-test.db')
     if (existsSync(dbFile)) {
       unlinkSync(dbFile)
     }
