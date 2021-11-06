@@ -23,7 +23,7 @@ export class Collection<Data extends Record<string, ObjectDict>> {
   update<K extends keyof Data>(
     collection: K & string,
     id: Int,
-    partialItem: Data[K][number],
+    partialItem: Partial<Data[K][number]>,
   ) {
     this.store.update(id, partialItem)
     const data = this.data
