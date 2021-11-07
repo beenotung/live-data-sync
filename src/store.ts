@@ -87,15 +87,15 @@ where id in (
           down: `drop table if exists field`,
         },
         {
-          name: 'create-object_field',
+          name: 'create-object',
           up: /* sql */ `create table if not exists object (
   id integer primary key
 , collection_id integer not null references collection(id)
 )`,
-          down: `drop table if exists object_field`,
+          down: `drop table if exists object`,
         },
         {
-          name: 'create-object',
+          name: 'create-object_field',
           up: /* sql */ `create table if not exists object_field (
   id integer primary key
 , object_id integer not null references object(id)
@@ -103,7 +103,7 @@ where id in (
 , value -- number | string | null
 , is_json integer not null -- boolean
 )`,
-          down: `drop table if exists object`,
+          down: `drop table if exists object_field`,
         },
       ],
     })
