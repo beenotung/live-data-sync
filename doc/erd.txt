@@ -1,0 +1,37 @@
+# https://erd.surge.sh
+#
+# Relationship Types
+#  -    - one to one
+#  -<   - one to many
+#  >-   - many to one
+#  >-<  - many to many
+#  -0   - one to zero or one
+#  0-   - zero or one to one
+#  0-0  - zero or one to zero or one
+#  -0<  - one to zero or many
+#  >0-  - zero or many to one
+#
+////////////////////////////////////
+
+collection
+----------
+id pk
+name text not null
+
+field
+-----
+id pk
+name text not null
+
+object
+------
+id pk
+collection_id not null fk >- collection.id
+
+object_field
+------------
+id pk
+object_id not null fk >- object.id
+field_id not null fk >- field.id
+value json  # number | string | null
+is_json not null bool
