@@ -1,10 +1,9 @@
 import { Store } from '../src/store'
 import { expect } from 'chai'
 import { Int } from '../src/types'
-import { DBInstance } from 'better-sqlite3-schema'
+import { DBInstance, newDB } from 'better-sqlite3-schema'
 import { join } from 'path'
 import { existsSync, unlinkSync } from 'fs'
-import DB from 'better-sqlite3-helper'
 
 describe('Store TestSuit', () => {
   let dbFile: string
@@ -15,7 +14,7 @@ describe('Store TestSuit', () => {
     if (existsSync(dbFile)) {
       unlinkSync(dbFile)
     }
-    db = DB({ path: dbFile, migrate: false })
+    db = newDB({ path: dbFile, migrate: false })
   })
   it('should create store from db', () => {
     store = new Store(db)
@@ -63,7 +62,7 @@ describe('Store TestSuit', () => {
     expect(countAfterCompact).to.equals(countBeforeUpdate)
   })
   it('should load existing data from new Store instance', () => {
-    db = DB({ path: dbFile, migrate: false })
+    db = newDB({ path: dbFile, migrate: false })
     store = new Store(db)
     expect(getUser()).to.deep.equals({ version: 2 })
   })

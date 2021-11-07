@@ -1,6 +1,5 @@
 import { Collection } from './../src/collection'
-import DB from 'better-sqlite3-helper'
-import { DBInstance } from 'better-sqlite3-schema'
+import { DBInstance, newDB } from 'better-sqlite3-schema'
 import { join } from 'path'
 import { Store } from '../src/store'
 import { ObjectDict, Int } from '../src/types'
@@ -28,7 +27,7 @@ describe('Collection TestSuit', () => {
     if (existsSync(dbFile)) {
       unlinkSync(dbFile)
     }
-    db = DB({ path: dbFile, migrate: false })
+    db = newDB({ path: dbFile, migrate: false })
     store = new Store(db)
     collection = new Collection(store)
   })

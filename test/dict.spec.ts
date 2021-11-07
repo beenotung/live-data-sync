@@ -1,5 +1,5 @@
 import { Dict } from './../src/dict'
-import DB from 'better-sqlite3-helper'
+import { newDB } from 'better-sqlite3-schema'
 import { join } from 'path'
 import { Collection } from '../src/collection'
 import { Store } from '../src/store'
@@ -20,7 +20,7 @@ describe('Dict TestSuit', () => {
     if (existsSync(dbFile)) {
       unlinkSync(dbFile)
     }
-    let db = DB({ path: dbFile, migrate: false })
+    let db = newDB({ path: dbFile, migrate: false })
     let store = new Store(db)
     collection = new Collection<{ config: ObjectDict<Config> }>(store)
   })
