@@ -16,22 +16,35 @@
 collection
 ----------
 id pk
-name text not null
+name text
 
 field
 -----
 id pk
-name text not null
+name text
 
 object
 ------
 id pk
-collection_id not null fk >- collection.id
+collection_id fk >- collection.id
 
 object_field
 ------------
 id pk
-object_id not null fk >- object.id
-field_id not null fk >- field.id
-value json  # number | string | null
-is_json not null bool
+object_id fk >- object.id
+field_id fk >- field.id
+value json null # number | string | null
+is_json bool
+
+dict    # singleton object
+----
+id pk
+name text
+
+dict_field
+-----
+id pk
+dict_id fk >- dict.id
+field text
+value json null # number | string | null
+is_json bool
