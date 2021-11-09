@@ -1,11 +1,25 @@
 import { Statement } from 'better-sqlite3'
-import { DBInstance } from 'better-sqlite3-schema'
+import { DBInstance, migrateUp } from 'better-sqlite3-schema'
 import { Int } from './types'
 
-type Row = {
-  id: number
-  name: string
+function migrate(db: DBInstance, table: string) {
+  migrateUp({
+    db,
+    migrations: [
+      {
+        name: `create-${table}`,
+        /* sql */
+        up: `
+create table if not exists ${table} (
+  id integer primary key
+, name text not null
+)`,
+        down: `drop table if exists ${table}`,
+      },
+    ],
+  })
 }
+
 export class KeyCache {
   private cache = new Map<string, Int>()
 
@@ -13,12 +27,18 @@ export class KeyCache {
   private insert_statement: Statement
 
   constructor(db: DBInstance, table: string) {
+    migrate(db, table)
     this.insert_statement = db.prepare(`insert into ${table} (name) values (?)`)
 
-    const rows: Row[] = db.prepare(`select id, name from ${table}`).all()
-    rows.forEach(row => {
-      this.cache.set(row.name, row.id)
-    })
+    type Row = {
+      id: number
+      name: string
+    }
+    db.prepare(`select id, name from ${table}`)
+      .all()
+      .forEach((row: Row) => {
+        this.cache.set(row.name, row.id)
+      })
   }
 
   getId(key: string): Int {

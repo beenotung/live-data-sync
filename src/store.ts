@@ -4,25 +4,25 @@ import { KeyCache } from './key-cache'
 import { Int, ObjectDict } from './types'
 
 export class Store {
-  private collectionKey: KeyCache
-  private fieldKey: KeyCache
+  private readonly collectionKey: KeyCache
+  private readonly fieldKey: KeyCache
 
   /** @description for add() */
-  private insert_object_statement: Statement
+  private readonly insert_object_statement: Statement
 
   /** @description for update() */
-  private insert_object_field_statement: Statement
+  private readonly insert_object_field_statement: Statement
 
   /** @description for delete() */
-  private delete_object_field_statement: Statement
-  private delete_object_statement: Statement
+  private readonly delete_object_field_statement: Statement
+  private readonly delete_object_statement: Statement
 
   /** @description for compact() */
-  private compact_statement: Statement
+  private readonly compact_statement: Statement
 
   /** @description for loadAll() */
-  private select_all_object_statement: Statement
-  private select_all_object_field_statement: Statement
+  private readonly select_all_object_statement: Statement
+  private readonly select_all_object_field_statement: Statement
 
   constructor(db: DBInstance) {
     Store.migrate(db)
@@ -63,50 +63,6 @@ where id in (
     this.select_all_object_field_statement = db.prepare(
       /* sql */ `select object_id, field_id, value, is_json from object_field`,
     )
-  }
-
-  private static migrate(db: DBInstance) {
-    migrateUp({
-      db,
-      table: 'migrations',
-      migrations: [
-        {
-          name: 'create-collection',
-          up: /* sql */ `create table if not exists collection (
-  id integer primary key
-, name text not null
-)`,
-          down: `drop table if exists collection`,
-        },
-        {
-          name: 'create-field',
-          up: /* sql */ `create table if not exists field (
-  id integer primary key
-, name text not null
-)`,
-          down: `drop table if exists field`,
-        },
-        {
-          name: 'create-object',
-          up: /* sql */ `create table if not exists object (
-  id integer primary key
-, collection_id integer not null references collection(id)
-)`,
-          down: `drop table if exists object`,
-        },
-        {
-          name: 'create-object_field',
-          up: /* sql */ `create table if not exists object_field (
-  id integer primary key
-, object_id integer not null references object(id)
-, field_id integer not null references field(id)
-, value -- number | string | null
-, is_json integer not null -- boolean
-)`,
-          down: `drop table if exists object_field`,
-        },
-      ],
-    })
   }
 
   add(collection: string, object: object): Int {
