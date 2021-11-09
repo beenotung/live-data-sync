@@ -1,6 +1,13 @@
 import { Statement } from 'better-sqlite3'
 import { DBInstance, migrateUp } from 'better-sqlite3-schema'
+import {
+  fromSqliteValue,
+  SqliteValue,
+  SqliteValueType,
+  toSqliteValue,
+} from './sqlite-value'
 import { KeyCache } from './key-cache'
+import { Int } from './types'
 
 function migrate(db: DBInstance) {
   migrateUp({
@@ -24,7 +31,7 @@ create table if not exists dict_field (
 , dict_id integer not null references dict(id)
 , field text not null
 , value -- number | string | null
-, is_json integer not null -- boolean
+, value_type text -- 'b' | 'o' | null
 )`,
         down: 'drop table if exists dict_field',
       },
@@ -32,40 +39,102 @@ create table if not exists dict_field (
   })
 }
 
+type DictFieldRow = {
+  dict_id: Int
+  field: string
+  value: SqliteValue
+  value_type: SqliteValueType
+}
+
 export class Dict<Data extends Record<string, object>> {
   data: Data
 
   private readonly nameKey: KeyCache
 
-  /** @description for update() */
-  private readonly insert_dict_field_statement: Statement
+  // for update()
+  private readonly insert_dict_field_statement: Statement<DictFieldRow>
+
+  // for delete()
+  private readonly delete_dict_field_statement: Statement<[Int]>
+
+  // for compact()
+  private compact_statement: Statement
 
   constructor(db: DBInstance) {
     migrate(db)
     this.nameKey = new KeyCache(db, 'dict')
     this.insert_dict_field_statement = db.prepare(
-      `insert into dict_field
-      (dict_id, field, value, is_json)
-      values
-      (:dict_id, :field, :value, :is_json)`,
+      /* sql */
+      `
+insert into dict_field
+(dict_id, field, value, value_type)
+values
+(:dict_id, :field, :value, :value_type)
+`,
     )
-    const select_dict_field_statement = db.prepare(
-      `select dict_id, field, value, is_json from dict_field`,
+    this.delete_dict_field_statement = db.prepare(
+      /* sql */ `delete from dict_field where dict_id = ?`,
     )
-    type Row = { dict_id: number; field: string; value: string; is_json: 1 | 0 }
+    this.compact_statement = db.prepare(/* sql */ `
+with list as (
+  select dict_id, field, max(id) as max_id
+  from dict_field
+  group by dict_id, field
+)
 
-    // id -> name
-    const id_name_map: string[] = []
-    for (const [name, id] of this.nameKey.entries()) {
-      id_name_map[id as number] = name
+delete from dict_field where id in (
+  select id from dict_field
+  inner join list
+    on dict_field.dict_id = list.dict_id
+   and dict_field.field = list.field
+   and dict_field.id <> list.max_id
+)
+`)
+
+    const loadAll = (): Data => {
+      const select_dict_field_statement = db.prepare(
+        /* sql */
+        `select dict_id, field, value, value_type
+       from dict_field
+       order by id asc
+      `,
+      )
+
+      // id -> dict
+      const id_dict_map: object[] = []
+
+      // name -> dict
+      const data: Record<string, object> = {}
+
+      for (const [name, id] of this.nameKey.entries()) {
+        const dict = {}
+        id_dict_map[id as number] = dict
+        data[name] = dict
+      }
+
+      for (const row of select_dict_field_statement.iterate() as IterableIterator<DictFieldRow>) {
+        const dict: any = id_dict_map[row.dict_id as number]
+        dict[row.field] = fromSqliteValue(row)
+      }
+
+      return data as Data
     }
+    this.data = loadAll()
+  }
 
-    const data = (this.data = {} as Data)
-    select_dict_field_statement.all().forEach((row: Row) => {
-      const name = id_name_map[row.dict_id] as keyof Data
-      const dict: any = data[name] || (data[name] = {} as Data[typeof name])
-      dict[row.field] = row.is_json ? JSON.parse(row.value) : row.value
+  init<K extends keyof Data>(name: K & string, defaultValue: Data[K]) {
+    const dict: any = this.data[name] || {}
+    const partialValue: any = {}
+    let fieldCount = 0
+    Object.entries(defaultValue).forEach(([field, value]) => {
+      if (!Object.prototype.hasOwnProperty.call(dict, field)) {
+        fieldCount++
+        partialValue[field] = value
+      }
     })
+    if (fieldCount > 0) {
+      this.update(name, partialValue)
+    }
   }
 
   update<K extends keyof Data>(
@@ -74,16 +143,12 @@ export class Dict<Data extends Record<string, object>> {
   ) {
     const dict_id = this.nameKey.getId(name)
     Object.entries(partialValue).forEach(([field, value]) => {
-      let is_json = 0
-      if (value && typeof value === 'object') {
-        is_json = 1
-        value = JSON.stringify(value)
-      }
+      const row = toSqliteValue(value)
       this.insert_dict_field_statement.run({
         dict_id,
         field,
-        value,
-        is_json,
+        value: row.value,
+        value_type: row.value_type,
       })
     })
     const data = this.data
@@ -94,5 +159,18 @@ export class Dict<Data extends Record<string, object>> {
         ...partialValue,
       },
     }
+  }
+
+  delete<K extends keyof Data>(name: K & string) {
+    const dict_id = this.nameKey.getId(name)
+    this.delete_dict_field_statement.run(dict_id)
+    this.data = {
+      ...this.data,
+      [name]: {},
+    }
+  }
+
+  compact() {
+    this.compact_statement.run()
   }
 }

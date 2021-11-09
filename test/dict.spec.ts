@@ -1,11 +1,8 @@
 import { Dict } from './../src/dict'
-import { newDB } from 'better-sqlite3-schema'
+import { DBInstance, newDB } from 'better-sqlite3-schema'
 import { join } from 'path'
-import { Collection } from '../src/collection'
-import { Store } from '../src/store'
-import { ObjectDict } from '../src/types'
-import { existsSync, unlinkSync } from 'fs'
 import { expect } from 'chai'
+import { newFreshDB } from './db'
 
 describe('Dict TestSuit', () => {
   type Config = {
@@ -13,37 +10,86 @@ describe('Dict TestSuit', () => {
     pathname: string
     version: string
   }
-  let collection: Collection<{ config: ObjectDict<Config> }>
-  let dict: Dict<'config', Config>
+  let dbFile: string
+  let db: DBInstance
+  let dict: Dict<{ config: Config }>
   before(() => {
-    let dbFile = join('data', 'dict-test.db')
-    if (existsSync(dbFile)) {
-      unlinkSync(dbFile)
-    }
-    let db = newDB({ path: dbFile, migrate: false })
-    let store = new Store(db)
-    collection = new Collection<{ config: ObjectDict<Config> }>(store)
+    dbFile = join('data', 'dict-test.db')
+    db = newFreshDB(dbFile)
+    dict = new Dict(db)
   })
-  it('should initialize dict', () => {
-    dict = new Dict<'config', Config>(collection, 'config', {
+  it('should initialize new dict', () => {
+    expect(dict.data.config).to.be.undefined
+    dict.init('config', {
+      origin: 'http://localhost:3000',
+      pathname: '/api',
+      version: '1.0.0',
+    })
+    expect(dict.data.config).deep.equals({
       origin: 'http://localhost:3000',
       pathname: '/api',
       version: '1.0.0',
     })
   })
-  it('should load dict value', () => {
-    expect(dict.get()).deep.equals({
+  it('should not initialize existing dict', () => {
+    expect(dict.data.config).not.to.be.undefined
+    dict.init('config', {
+      origin: 'no-origin',
+      pathname: 'no-pathname',
+      version: 'no-version',
+    })
+    expect(dict.data.config).deep.equals({
       origin: 'http://localhost:3000',
       pathname: '/api',
       version: '1.0.0',
     })
   })
   it('update update dict', () => {
-    dict.update({ version: '1.0.1' })
-    expect(dict.get()).deep.equals({
+    dict.update('config', { version: '1.0.1' })
+    expect(dict.data.config).deep.equals({
       origin: 'http://localhost:3000',
       pathname: '/api',
       version: '1.0.1',
+    })
+  })
+  it('should delete dict', () => {
+    expect(dict.data.config).deep.equals({
+      origin: 'http://localhost:3000',
+      pathname: '/api',
+      version: '1.0.1',
+    })
+    dict.delete('config')
+    expect(dict.data.config).deep.equals({})
+  })
+  it('should compact by removing replaced dict fields', () => {
+    const count_statement = db
+      .prepare(`select count(*) from dict_field`)
+      .pluck()
+
+    dict.update('config', {
+      origin: 'http://localhost:3000',
+      pathname: '/api',
+      version: '1.0.1',
+    })
+    const countBeforeUpdate = count_statement.get()
+
+    dict.update('config', { version: '1.0.2', pathname: '/rpc' })
+    const countAfterUpdate = count_statement.get()
+
+    expect(countAfterUpdate).to.equals(countBeforeUpdate + 2)
+
+    dict.compact()
+    const countAfterCompact = count_statement.get()
+
+    expect(countAfterCompact).to.equals(countBeforeUpdate)
+  })
+  it('should load previously data from new Dict instance', () => {
+    db = newDB({ path: dbFile, migrate: false })
+    dict = new Dict(db)
+    expect(dict.data.config).to.deep.equals({
+      origin: 'http://localhost:3000',
+      pathname: '/rpc',
+      version: '1.0.2',
     })
   })
 })
