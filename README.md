@@ -41,17 +41,20 @@ dict.init('config', {
   JWT_SECRET: process.env.JWT_SECRET,
 })
 
-dict.data.version // '1.0.0'
+dict.data.version
+// '1.0.0'
 
 // partial update
 dict.update('config', {
   version: '1.0.1',
 })
 
-dict.data.version // '1.0.1'
+dict.data.version
+// '1.0.1'
 
 dict.delete('config')
-dict.data.config // {}
+dict.data.config
+// {}
 ```
 
 For more usage example, refers to [dict.spec.ts](./test/dict.spec.ts)
@@ -62,17 +65,31 @@ A collection can contains multiple type of objects.
 Each object is an "instance of" key-value pair sharing similar fields of it's type.
 
 ```typescript
-import { Collection } from 'live-data-sync'
+import { Collection, Int, ObjectDict } from 'live-data-sync'
 
-let collection = new Collection(db)
+let collection = new Collection<{
+  users: ObjectDict<{ name: string }>
+  posts: ObjectDict<{ user_id: Int; content: string }>
+}>(db)
 
 let user_id = collection.add('users', { name: 'alice' })
+// 1
 let post_id = collection.add('posts', { user_id, content: 'Hello World' })
+// 2
 
-collection.data.posts[post_id as number].content // 'Hello World'
+collection.data.posts[post_id as number].content
+// 'Hello World'
 
 // partial update
-collection.update('posts', post_id, { conetnt })
+collection.update('posts', post_id, { content: 'Hi' })
+
+collection.data.posts[post_id as number]
+// { user_id: 1, content: 'Hi' }
+
+collection.delete('posts', post_id)
+
+collection.data.posts[post_id as number]
+// undefined
 ```
 
 For more usage example, refers to [collection.spec.ts](./test/collection.spec.ts)
