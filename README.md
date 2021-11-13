@@ -20,8 +20,8 @@ Persist and restore the application state. Designed for [web-redux](https://gith
 import { newDB } from 'better-sqlite3-schema'
 
 let db = newDB({
-    path: 'state.db',
-    migrate: false,
+  path: 'state.db',
+  migrate: false,
 })
 ```
 
@@ -37,15 +37,15 @@ let dict = new Dict(db)
 
 // init values if not exists
 dict.init('config', {
-    version: '1.0.0',
-    JWT_SECRET: process.env.JWT_SECRET,
+  version: '1.0.0',
+  JWT_SECRET: process.env.JWT_SECRET,
 })
 
 dict.data.version // '1.0.0'
 
 // partial update
 dict.update('config', {
-    version: '1.0.1',
+  version: '1.0.1',
 })
 
 dict.data.version // '1.0.1'
