@@ -54,6 +54,8 @@ dict.delete('config')
 dict.data.config // {}
 ```
 
+For more usage example, refers to [dict.spec.ts](./test/dict.spec.ts)
+
 ### Create a persistent Collection
 
 A collection can contains multiple type of objects.
@@ -73,7 +75,7 @@ collection.data.posts[post_id as number].content // 'Hello World'
 collection.update('posts', post_id, { conetnt })
 ```
 
-For more usage example, refers to [collection.spec.ts](./test/collection.spec.ts) and [dict.spec.ts](./test/dict.spec.ts)
+For more usage example, refers to [collection.spec.ts](./test/collection.spec.ts)
 
 ## License
 
