@@ -152,6 +152,9 @@ order by id asc
       }
       return collection_name_object_dict as Data
     }
+
+    this.compact()
+
     this.data = loadAll()
   }
 

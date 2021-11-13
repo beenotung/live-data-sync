@@ -119,6 +119,9 @@ delete from dict_field where id in (
 
       return data as Data
     }
+
+    this.compact()
+
     this.data = loadAll()
   }
 
