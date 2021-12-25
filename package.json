@@ -29,9 +29,6 @@
   "module": "dist/esm/index.js",
   "sideEffects": false,
   "scripts": {
-    "prepare": "run-p prepare:*",
-    "prepare:husky": "husky install",
-    "prepare:tslib": "rimraf node_modules/@beenotung/tslib/index.*",
     "clean": "rimraf dist",
     "format": "run-s format:*",
     "format:prettier": "prettier --write .",
@@ -58,7 +55,6 @@
     "dist"
   ],
   "dependencies": {
-    "@beenotung/tslib": "^17.8.0",
     "better-sqlite3": "^7.4.3",
     "better-sqlite3-helper": "^3.1.4",
     "better-sqlite3-schema": "^2.1.1",
@@ -76,7 +72,6 @@
     "chai": "^4.3.4",
     "eslint": "^8.1.0",
     "format-json-cli": "^1.0.1",
-    "husky": "^7.0.4",
     "mocha": "^8.2.3",
     "npm-run-all": "^4.1.5",
     "nyc": "^15.1.0",
