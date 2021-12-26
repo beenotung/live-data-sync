@@ -17,7 +17,7 @@ export type Filter = {
 
 export type Callback = () => void
 
-export type SubscriptionsIndex = {
+type SubscriptionsIndex = {
   [table: string]: {
     // id | '*'
     [id: number | string]: {
@@ -27,7 +27,7 @@ export type SubscriptionsIndex = {
   }
 }
 
-export const subscriptions: SubscriptionsIndex = {}
+const subscriptions: SubscriptionsIndex = {}
 
 export function subscribe(filters: Filter[], callback: Callback) {
   const callbackSets: Array<Set<Callback>> = []
