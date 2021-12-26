@@ -58,6 +58,7 @@
     "better-sqlite3": "^7.4.3",
     "better-sqlite3-helper": "^3.1.4",
     "better-sqlite3-schema": "^2.1.1",
+    "rethinkdb-ts": "^2.4.18",
     "tslib": "^2.3.1"
   },
   "devDependencies": {
