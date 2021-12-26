@@ -8,6 +8,8 @@
     "in-memory",
     "better-sqlite3",
     "data-store",
+    "web-redux",
+    "redux-store",
     "sync"
   ],
   "author": {
