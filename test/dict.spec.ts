@@ -20,11 +20,12 @@ describe('Dict TestSuit', () => {
   })
   it('should initialize new dict', () => {
     expect(dict.data.config).to.be.undefined
-    dict.init('config', {
+    let updatedFields = dict.init('config', {
       origin: 'http://localhost:3000',
       pathname: '/api',
       version: '1.0.0',
     })
+    expect(updatedFields).to.equals(3)
     expect(dict.data.config).deep.equals({
       origin: 'http://localhost:3000',
       pathname: '/api',
@@ -33,11 +34,12 @@ describe('Dict TestSuit', () => {
   })
   it('should not initialize existing dict', () => {
     expect(dict.data.config).not.to.be.undefined
-    dict.init('config', {
+    let updatedFields = dict.init('config', {
       origin: 'no-origin',
       pathname: 'no-pathname',
       version: 'no-version',
     })
+    expect(updatedFields).to.equals(0)
     expect(dict.data.config).deep.equals({
       origin: 'http://localhost:3000',
       pathname: '/api',

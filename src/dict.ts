@@ -125,7 +125,7 @@ delete from dict_field where id in (
     this.data = loadAll()
   }
 
-  init<K extends keyof Data>(name: K & string, defaultValue: Data[K]) {
+  init<K extends keyof Data>(name: K & string, defaultValue: Data[K]): number {
     const dict: any = this.data[name] || {}
     const partialValue: any = {}
     let fieldCount = 0
@@ -138,6 +138,7 @@ delete from dict_field where id in (
     if (fieldCount > 0) {
       this.update(name, partialValue)
     }
+    return fieldCount
   }
 
   update<K extends keyof Data>(
